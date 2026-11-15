@@ -4,17 +4,44 @@ const protocol = require("./chunks/protocol.js");
 const parentPort = process.parentPort;
 const entry = process.argv[2];
 let commands = {};
-const running = /* @__PURE__ */ new Map();
-const pending = /* @__PURE__ */ new Map();
+const running = new Map();
+const pending = new Map();
+const HOST_CALL_TIMEOUT_MS = 30000;
 let nextCall = 0;
 const post = (message) => parentPort.postMessage(message);
-function call(method, params) {
+function call(method, params, signal) {
   if (!(method in protocol.METHODS)) {
     return Promise.reject(new Error(`Unknown editor method: ${method}`));
   }
+  if (signal?.aborted) {
+    return Promise.reject(signal.reason instanceof Error ? signal.reason : new Error("The run was cancelled."));
+  }
   const callId = ++nextCall;
   return new Promise((resolve, reject) => {
-    pending.set(callId, { resolve, reject });
+    const cleanup = () => {
+      clearTimeout(timer);
+      if (signal && onAbort) signal.removeEventListener("abort", onAbort);
+    };
+    const onAbort = signal
+      ? () => {
+          if (pending.delete(callId)) {
+            cleanup();
+            reject(signal.reason instanceof Error ? signal.reason : new Error("The run was cancelled."));
+          }
+        }
+      : null;
+    const timer = setTimeout(() => {
+      if (pending.delete(callId)) {
+        cleanup();
+        reject(new Error(`Timed out calling ${method}`));
+      }
+    }, HOST_CALL_TIMEOUT_MS);
+    timer.unref?.();
+    if (signal && onAbort) signal.addEventListener("abort", onAbort, { once: true });
+    pending.set(callId, {
+      resolve: (value) => { cleanup(); resolve(value); },
+      reject: (error) => { cleanup(); reject(error); },
+    });
     post({ t: protocol.TO_HOST.CALL, callId, method, params });
   });
 }
@@ -32,22 +59,22 @@ function contextFor(runId, base, signal) {
     signal,
     log,
     fs: {
-      read: (path) => call("fs.read", { path }),
-      list: (path) => call("fs.list", { path }),
-      write: (path, content) => call("fs.write", { path, content })
+      read: (path) => call("fs.read", { path }, signal),
+      list: (path) => call("fs.list", { path }, signal),
+      write: (path, content) => call("fs.write", { path, content }, signal)
     },
     project: {
-      files: () => call("project.files", {}),
-      search: (query, options) => call("project.search", { query, options: options ?? {} })
+      files: () => call("project.files", {}, signal),
+      search: (query, options) => call("project.search", { query, options: options ?? {} }, signal)
     },
     editor: {
-      open: (path) => call("editor.open", { path }),
-      replace: (content) => call("editor.replace", { content }),
-      insert: (text) => call("editor.insert", { text })
+      open: (path) => call("editor.open", { path }, signal),
+      replace: (content) => call("editor.replace", { content }, signal),
+      insert: (text) => call("editor.insert", { text }, signal)
     },
     ui: {
-      notify: (message) => call("ui.notify", { message }),
-      output: (result) => call("ui.output", { result })
+      notify: (message) => call("ui.notify", { message }, signal),
+      output: (result) => call("ui.output", { result }, signal)
     }
   };
 }

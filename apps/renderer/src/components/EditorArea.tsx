@@ -62,8 +62,8 @@ import { useCommandPalette } from "@/stores/commands";
 import { useAi } from "@/stores/ai";
 import { toast } from "@/stores/toast";
 import { ReferencesOverlay } from "./ReferencesOverlay";
-import { SettingsView } from "./SettingsView";
 
+const SettingsView = lazy(() => import("./SettingsView").then((m) => ({ default: m.SettingsView })));
 const CodeEditor = lazy(() => import("@/editor/CodeEditor").then((m) => ({ default: m.CodeEditor })));
 
 const HttpResponse = lazy(() => import("@/panels/HttpResponse").then((m) => ({ default: m.HttpResponse })));

@@ -2261,7 +2261,7 @@ dependencies = [
 
 [[package]]
 name = "wide"
-version = "1.9.141126"
+version = "2.0.151126"
 dependencies = [
  "http",
  "serde",

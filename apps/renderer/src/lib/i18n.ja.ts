@@ -1949,4 +1949,13 @@ export const JA: Record<string, string> = {
   "What Wide IDE is allowed to touch, and a log of every decision it has made.": "Wide IDE が変更を許可されている範囲と、すべての判断のログです。",
   "When a run task prints a localhost URL, open it automatically in Wide IDE's browser.": "実行タスクが localhost URL を出力したとき、Wide IDE のブラウザで自動的に開きます。",
   "Wide IDE checks for updates on startup and installs them automatically from GitHub.": "Wide IDE は起動時に更新を確認し、GitHub から自動的にインストールします。",
+  "Clear History": "履歴をクリア",
+  "Copied Mermaid ERD diagram.": "Mermaid ERD 図をコピーしました。",
+  "Copy Mermaid": "Mermaid をコピー",
+  "Could not copy Mermaid diagram.": "Mermaid 図をコピーできませんでした。",
+  "A crash was detected from the previous session": "前回のセッションでクラッシュが検出されました",
+  "It appears {app} encountered an unexpected error and closed. You can help improve stability by submitting this anonymous report.": "{app} で予期しないエラーが発生して終了したようです。この匿名レポートを送信することで安定性の向上にご協力いただけます。",
+  "Type: {kind}": "種類: {kind}",
+  "Sending...": "送信中...",
+  "Send Report": "レポートを送信",
 };

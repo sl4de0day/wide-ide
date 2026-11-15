@@ -1949,4 +1949,13 @@ export const TR: Record<string, string> = {
   "What Wide IDE is allowed to touch, and a log of every decision it has made.": "Wide IDE'nin neleri değiştirebileceği ve verdiği her kararın kaydı.",
   "When a run task prints a localhost URL, open it automatically in Wide IDE's browser.": "Bir çalıştırma görevi localhost URL'si yazdırdığında, otomatik olarak Wide IDE'nin tarayıcısında aç.",
   "Wide IDE checks for updates on startup and installs them automatically from GitHub.": "Wide IDE açılışta güncellemeleri denetler ve GitHub'dan otomatik olarak kurar.",
+  "Clear History": "Geçmişi Temizle",
+  "Copied Mermaid ERD diagram.": "Mermaid ERD diyagramı kopyalandı.",
+  "Copy Mermaid": "Mermaid Kopyala",
+  "Could not copy Mermaid diagram.": "Mermaid diyagramı kopyalanamadı.",
+  "A crash was detected from the previous session": "Önceki oturumdan bir çökme tespit edildi",
+  "It appears {app} encountered an unexpected error and closed. You can help improve stability by submitting this anonymous report.": "{app} beklenmedik bir hatayla karşılaşıp kapanmış görünüyor. Bu anonim raporu göndererek kararlılığı artırmaya yardımcı olabilirsiniz.",
+  "Type: {kind}": "Tür: {kind}",
+  "Sending...": "Gönderiliyor...",
+  "Send Report": "Raporu Gönder",
 };

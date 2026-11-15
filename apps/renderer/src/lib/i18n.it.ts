@@ -1949,4 +1949,13 @@ export const IT: Record<string, string> = {
   "What Wide IDE is allowed to touch, and a log of every decision it has made.": "Cosa è consentito modificare a Wide IDE e il registro di ogni decisione presa.",
   "When a run task prints a localhost URL, open it automatically in Wide IDE's browser.": "Quando un'attività stampa un URL localhost, aprilo automaticamente nel browser di Wide IDE.",
   "Wide IDE checks for updates on startup and installs them automatically from GitHub.": "Wide IDE verifica gli aggiornamenti all'avvio e li installa automaticamente da GitHub.",
+  "Clear History": "Cancella cronologia",
+  "Copied Mermaid ERD diagram.": "Diagramma ERD Mermaid copiato.",
+  "Copy Mermaid": "Copia Mermaid",
+  "Could not copy Mermaid diagram.": "Impossibile copiare il diagramma Mermaid.",
+  "A crash was detected from the previous session": "È stato rilevato un arresto anomalo dalla sessione precedente",
+  "It appears {app} encountered an unexpected error and closed. You can help improve stability by submitting this anonymous report.": "Sembra che {app} abbia riscontrato un errore imprevisto e si sia chiuso. Puoi contribuire a migliorare la stabilità inviando questa segnalazione anonima.",
+  "Type: {kind}": "Tipo: {kind}",
+  "Sending...": "Invio...",
+  "Send Report": "Invia segnalazione",
 };

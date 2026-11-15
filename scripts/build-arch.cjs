@@ -60,7 +60,7 @@ const pkginfoContent = `pkgname = wide-ide
 pkgbase = wide-ide
 xdata = pkgtype=pkg
 pkgver = ${VERSION}-1
-pkgdesc = Security-first IDE for the web stack � real-time vulnerability detection, built-in Catcher proxy & Pitcher API client
+pkgdesc = Security-first IDE for the web stack - real-time vulnerability detection, built-in Catcher proxy & Pitcher API client
 url = https://github.com/sl4de0day/wide
 builddate = ${buildDate}
 packager = Unknown Packager

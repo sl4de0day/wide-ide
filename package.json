@@ -1,7 +1,7 @@
 {
   "name": "wide",
   "productName": "Wide IDE",
-  "version": "1.9141126",
+  "version": "2.0151126",
   "description": "Wide IDE — a security-first IDE for the web stack. Modern cross-platform native host (Rust + tao + wry), React renderer, Node backend sidecar.",
   "private": true,
   "workspaces": [
@@ -27,6 +27,9 @@
     "test": "npm run test:unit && npm run test:smoke",
     "test:unit": "npm --prefix apps/renderer run test",
     "test:smoke": "node sidecar/smoke-backend.cjs",
+    "test:host-win": "powershell -ExecutionPolicy Bypass -File scripts/test-host-win.ps1",
+    "sync:app": "node scripts/sync-shared.cjs --apply",
+    "sync:check": "node scripts/sync-shared.cjs --check",
     "start": "node scripts/start.cjs",
     "start:linux": "electron scripts/host-linux.cjs",
     "dev:linux": "electron scripts/host-linux.cjs --dev",

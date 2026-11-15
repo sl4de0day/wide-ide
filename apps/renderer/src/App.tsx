@@ -1,5 +1,5 @@
 import { ChevronLeft, ShieldAlert, X } from "lucide-react";
-import { Suspense, useEffect, useRef, useState } from "react";
+import { Suspense, lazy, useEffect, useRef, useState } from "react";
 import { useShallow } from "zustand/react/shallow";
 
 import { ActivityBar, panelById } from "./components/ActivityBar";
@@ -35,7 +35,7 @@ import { sendSelectionToChat } from "./lib/sendToChat";
 import { selectedText } from "./editor/activeView";
 import { copyConversation, exportConversation } from "./lib/chatExport";
 import { BottomDock, SidePanel } from "./components/SidePanel";
-import { SettingsView } from "./components/SettingsView";
+const SettingsView = lazy(() => import("./components/SettingsView").then((m) => ({ default: m.SettingsView })));
 import { StatusBar } from "./components/StatusBar";
 import { TitleBar } from "./components/TitleBar";
 import { bridge } from "./lib/bridge";
@@ -690,16 +690,27 @@ export default function App() {
 
 
   const activePath = useEditor((state) => state.activePath);
-  const cursor = useEditor((state) => state.cursor);
   useEffect(() => {
     if (!root || !activePath || activePath.startsWith("wide://")) return;
-
-
-    const timer = setTimeout(() => {
-      rememberLastFile(root, activePath, cursor.line, cursor.column);
-    }, 1000);
-    return () => clearTimeout(timer);
-  }, [root, activePath, cursor]);
+    let timer: ReturnType<typeof setTimeout> | null = null;
+    const schedule = (line: number, column: number) => {
+      if (timer) clearTimeout(timer);
+      timer = setTimeout(() => {
+        rememberLastFile(root, activePath, line, column);
+      }, 1000);
+    };
+    const initial = useEditor.getState().cursor;
+    schedule(initial.line, initial.column);
+    const unsub = useEditor.subscribe((state, prev) => {
+      if (state.cursor.line !== prev.cursor.line || state.cursor.column !== prev.cursor.column) {
+        schedule(state.cursor.line, state.cursor.column);
+      }
+    });
+    return () => {
+      unsub();
+      if (timer) clearTimeout(timer);
+    };
+  }, [root, activePath]);
 
 
   const fontSize = useSettings((state) => state.fontSize);
@@ -884,7 +895,9 @@ export default function App() {
               </button>
             </div>
             <div className="min-h-0 flex-1">
-              <SettingsView />
+              <Suspense fallback={null}>
+                <SettingsView />
+              </Suspense>
             </div>
           </div>
         ) : (

@@ -3,7 +3,15 @@ import { create } from "zustand";
 import { t } from "@/lib/i18n";
 import { bridge } from "@/lib/bridge";
 import { basename, normalisePath } from "@/lib/utils";
+import { forgetProjectInstructions, useAi } from "./ai";
+import { useAiEdits } from "./aiEdits";
+import { confirm } from "./confirm";
 import { useDiagnostics } from "./diagnostics";
+import { useEngine } from "./engine";
+import { useRemote } from "./remote";
+import { useSettings } from "./settings";
+import { toast } from "./toast";
+import { useWorkspace } from "./workspace";
 import {
   buildPresetLayout,
   closePaneInTree,
@@ -225,7 +233,7 @@ export function newRepeaterSeed(seed: RepeaterSeed): string {
 function cleanupClosedTab(path: string): void {
   useDiagnostics.getState().clear(path);
   if (path.startsWith(AI_CHAT_PATH)) {
-    void import("./ai").then((module) => module.useAi.getState().closeChat(path.slice(AI_CHAT_PATH.length)));
+    useAi.getState().closeChat(path.slice(AI_CHAT_PATH.length));
   }
 }
 
@@ -491,17 +499,14 @@ export const useEditor = create<EditorState>((set, get) => ({
     }
     if (path.startsWith(REMOTE_PATH)) {
       const { id, remotePath } = parseRemoteTab(path);
-      const { useRemote } = await import("./remote");
       const profile = useRemote.getState().profiles.find((p) => p.id === id);
       if (!profile) return false;
       const reply = await bridge.remoteReadFile(profile, remotePath);
       if (!reply.ok) {
-        const { toast } = await import("./toast");
         toast.error(reply.error ? t(reply.error) : t("Could not read the remote file."));
         return false;
       }
       if (reply.binary) {
-        const { toast } = await import("./toast");
         toast.error(t("That looks like a binary file — Wide can't edit it over SSH yet."));
         return false;
       }
@@ -782,9 +787,7 @@ export const useEditor = create<EditorState>((set, get) => ({
     useDiagnostics.getState().clear(path);
 
     if (path.startsWith(AI_CHAT_PATH)) {
-      void import("./ai").then((module) =>
-        module.useAi.getState().closeChat(path.slice(AI_CHAT_PATH.length)),
-      );
+      useAi.getState().closeChat(path.slice(AI_CHAT_PATH.length));
     }
     set((state) => {
       const index = state.tabs.findIndex((tab) => tab.path === path);
@@ -962,7 +965,6 @@ export const useEditor = create<EditorState>((set, get) => ({
       }
     }
     if (warned) {
-      const { toast } = await import("./toast");
       toast.error(t("A file open in the editor changed on disk. Your unsaved version is kept — reload it to take the disk copy."));
     }
   },
@@ -993,7 +995,7 @@ export const useEditor = create<EditorState>((set, get) => ({
 
       lastFilePath: state.lastFilePath ? repoint(state.lastFilePath) : state.lastFilePath,
     }));
-    void import("./aiEdits").then((module) => module.useAiEdits.getState().relocate(oldPath, newPath));
+    useAiEdits.getState().relocate(oldPath, newPath);
   },
 
   formatActive: async () => {
@@ -1001,7 +1003,6 @@ export const useEditor = create<EditorState>((set, get) => ({
     const tab = tabs.find((item) => item.path === activePath);
     if (!tab || tab.kind !== "file") return { ok: false, error: t("No file is open.") };
 
-    const { useWorkspace } = await import("./workspace");
     const result = await bridge.formatText(tab.path, tab.content, useWorkspace.getState().root);
     if (!result.ok) return result;
     if (result.text === tab.content) return { ok: true, formatter: result.formatter, unchanged: true };
@@ -1023,8 +1024,6 @@ export const useEditor = create<EditorState>((set, get) => ({
 
     if (tab.path.startsWith(REMOTE_PATH)) {
       const { id, remotePath } = parseRemoteTab(tab.path);
-      const { useRemote } = await import("./remote");
-      const { toast } = await import("./toast");
       const profile = useRemote.getState().profiles.find((p) => p.id === id);
       if (!profile) {
         toast.error(t("That remote host is no longer configured."));
@@ -1033,7 +1032,6 @@ export const useEditor = create<EditorState>((set, get) => ({
       const bytes = new TextEncoder().encode(tab.content).length;
       let reply = await bridge.remoteWriteFile(profile, remotePath, tab.content, tab.size);
       if (reply.conflict) {
-        const { confirm } = await import("./confirm");
         const overwrite = await confirm({
           title: t("This file changed on the remote host"),
           message: t("Saving will overwrite the newer copy on the remote with your version. Overwrite it?"),
@@ -1055,7 +1053,6 @@ export const useEditor = create<EditorState>((set, get) => ({
       return;
     }
 
-    const { useSettings } = await import("./settings");
     if (useSettings.getState().formatOnSave) {
       const formatted = await get().formatActive();
       if (formatted.ok && !formatted.unchanged) {
@@ -1066,7 +1063,6 @@ export const useEditor = create<EditorState>((set, get) => ({
 
     const live = get().tabs.find((item) => item.path === tab.path);
     if (live && live.kind === "file" && live.diskChanged) {
-      const { confirm } = await import("./confirm");
       const ok = await confirm({
         title: t("This file changed on disk"),
         message: t("Saving will overwrite the newer copy on disk with your version. Overwrite it?"),
@@ -1086,10 +1082,9 @@ export const useEditor = create<EditorState>((set, get) => ({
         ),
       }));
 
-      const { useEngine } = await import("./engine");
       useEngine.getState().noticeSave(tab.path);
       if (tab.path.includes("ai-instructions")) {
-        void import("./ai").then((m) => m.forgetProjectInstructions());
+        forgetProjectInstructions();
       }
     } catch (error) {
       console.error(`Could not save file: ${tab.path}`, error);

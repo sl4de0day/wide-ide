@@ -1949,4 +1949,13 @@ export const KO: Record<string, string> = {
   "What Wide IDE is allowed to touch, and a log of every decision it has made.": "Wide IDE가 수정할 수 있는 대상과 모든 결정의 기록입니다.",
   "When a run task prints a localhost URL, open it automatically in Wide IDE's browser.": "실행 작업이 localhost URL을 출력하면 Wide IDE 브라우저에서 자동으로 엽니다.",
   "Wide IDE checks for updates on startup and installs them automatically from GitHub.": "Wide IDE는 시작 시 업데이트를 확인하고 GitHub에서 자동으로 설치합니다.",
+  "Clear History": "기록 지우기",
+  "Copied Mermaid ERD diagram.": "Mermaid ERD 다이어그램이 복사되었습니다.",
+  "Copy Mermaid": "Mermaid 복사",
+  "Could not copy Mermaid diagram.": "Mermaid 다이어그램을 복사할 수 없습니다.",
+  "A crash was detected from the previous session": "이전 세션에서 충돌이 감지되었습니다",
+  "It appears {app} encountered an unexpected error and closed. You can help improve stability by submitting this anonymous report.": "{app}에서 예기치 않은 오류가 발생하여 종료된 것으로 보입니다. 이 익명 보고서를 제출하여 안정성 향상에 도움을 줄 수 있습니다.",
+  "Type: {kind}": "유형: {kind}",
+  "Sending...": "전송 중...",
+  "Send Report": "보고서 전송",
 };

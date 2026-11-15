@@ -502,15 +502,16 @@ function parse(tokens) {
 }
 const SPECIAL = /[.+^${}()|[\]\\]/g;
 function globToRegExp(pattern) {
+  const normalized = pattern.replace(/\*{3,}/g, "**").replace(/(?:\*\*\/){2,}/g, "**/");
   let out = "";
   let index = 0;
-  while (index < pattern.length) {
-    const char = pattern[index];
+  while (index < normalized.length) {
+    const char = normalized[index];
     if (char === "*") {
-      const isDouble = pattern[index + 1] === "*";
+      const isDouble = normalized[index + 1] === "*";
       if (isDouble) {
-        if (pattern[index + 2] === "/") {
-          out += "(?:.*/)?";
+        if (normalized[index + 2] === "/") {
+          out += "(?:[^/]*/)*";
           index += 3;
           continue;
         }
@@ -542,7 +543,9 @@ function compilePattern(pattern) {
 const normalizePath = (value) => String(value).replace(/\\/g, "/");
 function matchesPattern(compiled, { relativePath, basename }) {
   const subject = compiled.againstBasename ? basename : relativePath;
-  return subject !== null && compiled.regexp.test(subject);
+  if (subject === null) return false;
+  compiled.regexp.lastIndex = 0;
+  return compiled.regexp.test(subject);
 }
 const SUPPORTED_FORMAT = "sssF";
 const SUPPORTED_VERSION = 1;
@@ -580,7 +583,7 @@ function resolvePattern(reference, sets, diagnostics) {
   if (reference.type === "regex") {
     return {
       kind: "regex",
-      regexp: new RegExp(reference.pattern, reference.flags),
+      regexp: new RegExp(reference.pattern, String(reference.flags || "").replace(/[gy]/g, "")),
       label: `/${reference.pattern}/`
     };
   }
@@ -590,10 +593,14 @@ function resolvePattern(reference, sets, diagnostics) {
     label: reference.pattern
   };
 }
+function testRegexp(re, value) {
+  re.lastIndex = 0;
+  return re.test(value);
+}
 function pathHits(resolved, context) {
   if (context.relativePath === null && context.basename === null) return false;
   if (resolved.kind === "regex") {
-    return resolved.regexp.test(context.relativePath ?? context.rawPath ?? "");
+    return testRegexp(resolved.regexp, context.relativePath ?? context.rawPath ?? "");
   }
   return resolved.patterns.some((pattern) => matchesPattern(pattern, context));
 }
@@ -627,8 +634,8 @@ function compileCondition(node, sets, diagnostics) {
       const resolved = resolvePattern(node.pattern, sets, diagnostics);
       return (context) => {
         if (typeof context.command !== "string" || context.command.length === 0) return false;
-        if (resolved.kind === "regex") return resolved.regexp.test(context.command);
-        return resolved.patterns.some((pattern) => pattern.regexp.test(context.command));
+        if (resolved.kind === "regex") return testRegexp(resolved.regexp, context.command);
+        return resolved.patterns.some((pattern) => testRegexp(pattern.regexp, context.command));
       };
     }
     case "subjectIs":
@@ -640,8 +647,8 @@ function compileCondition(node, sets, diagnostics) {
       return (context) => {
         const value = context.args?.[node.index];
         if (typeof value !== "string") return false;
-        if (resolved.kind === "regex") return resolved.regexp.test(value);
-        return resolved.patterns.some((pattern) => pattern.regexp.test(value));
+        if (resolved.kind === "regex") return testRegexp(resolved.regexp, value);
+        return resolved.patterns.some((pattern) => testRegexp(pattern.regexp, value));
       };
     }
     default:
@@ -801,6 +808,7 @@ class AuditLog {
     this.sequence = 0;
     this.lines = 0;
     this.pending = Promise.resolve();
+    this.flushQueue = Promise.resolve();
     this.ready = null;
 
     this.buffer = [];
@@ -815,11 +823,15 @@ class AuditLog {
         const existing = await promises.readFile(this.path, "utf8");
         const lines = existing.split("\n").filter(Boolean);
         this.lines = lines.length;
-        const last = lines[lines.length - 1];
-        if (last) {
-          const parsed = JSON.parse(last);
-          this.previousHash = parsed.h ?? GENESIS;
-          this.sequence = (parsed.seq ?? 0) + 1;
+        for (let idx = lines.length - 1; idx >= 0; idx--) {
+          try {
+            const parsed = JSON.parse(lines[idx]);
+            if (parsed && typeof parsed === "object") {
+              this.previousHash = parsed.h ?? GENESIS;
+              this.sequence = (parsed.seq ?? 0) + 1;
+              break;
+            }
+          } catch {}
         }
       } catch {
         this.previousHash = null;
@@ -898,19 +910,24 @@ ${JSON.stringify(record2)}`).digest("hex");
     }, 250);
     this.flushTimer.unref?.();
   }
-  async flush() {
+  flush() {
     if (this.flushTimer) {
       clearTimeout(this.flushTimer);
       this.flushTimer = null;
     }
-    if (this.buffer.length === 0) return;
-    const chunk = `${this.buffer.join("\n")}\n`;
-    this.buffer.length = 0;
-    try {
-      await promises.appendFile(this.path, chunk, "utf8");
-    } catch (error) {
-      console.error("[sssF] Could not write the audit records:", error.message);
-    }
+    const run = async () => {
+      if (this.buffer.length === 0) return;
+      const batch = this.buffer.splice(0);
+      const chunk = `${batch.join("\n")}\n`;
+      try {
+        await promises.appendFile(this.path, chunk, "utf8");
+      } catch (error) {
+        this.buffer = batch.concat(this.buffer).slice(-1000);
+        console.error("[sssF] Could not write the audit records:", error.message);
+      }
+    };
+    this.flushQueue = this.flushQueue.then(run, run);
+    return this.flushQueue;
   }
   async trim() {
     const existing = await promises.readFile(this.path, "utf8");
@@ -938,8 +955,17 @@ ${JSON.stringify(record2)}`).digest("hex");
     );
     this.lines = kept.length + 1;
     this.sequence += 1;
-    const last = kept[kept.length - 1];
-    this.previousHash = last ? JSON.parse(last).h ?? GENESIS : markerHash ?? GENESIS;
+    let recoveredHash = markerHash ?? GENESIS;
+    for (let idx = kept.length - 1; idx >= 0; idx--) {
+      try {
+        const parsed = JSON.parse(kept[idx]);
+        if (parsed && typeof parsed.h === "string") {
+          recoveredHash = parsed.h;
+          break;
+        }
+      } catch {}
+    }
+    this.previousHash = recoveredHash;
   }
 
   async tail(count = 100) {
@@ -1238,6 +1264,7 @@ const state = {
   audit: null,
   counters: { allowed: 0, denied: 0, blocked: 0, approvals: 0 },
   watcher: null,
+  watchTimer: null,
   installed: false
 };
 const broadcast = (channel, payload) => {
@@ -1303,19 +1330,24 @@ async function load({ initial = false } = {}) {
   );
   return true;
 }
-function startWatching() {
+function sssfStartWatching() {
   if (!state.policyPath || state.watcher) return;
   try {
-    let timer = null;
     state.watcher = node_fs.watch(state.policyPath, () => {
-      clearTimeout(timer);
-      timer = setTimeout(async () => {
+      if (state.watchTimer) clearTimeout(state.watchTimer);
+      state.watchTimer = setTimeout(async () => {
+        state.watchTimer = null;
         await load();
         broadcast("sssf:changed", status());
       }, 150);
+      state.watchTimer.unref?.();
     });
     state.watcher.on("error", (error) => {
       console.warn("[sssF] The policy watcher stopped:", error.message);
+      if (state.watchTimer) {
+        clearTimeout(state.watchTimer);
+        state.watchTimer = null;
+      }
       state.watcher = null;
     });
   } catch (error) {
@@ -1451,10 +1483,17 @@ function registerSssfHandlers() {
 async function boot() {
   install();
   await load({ initial: true });
-  startWatching();
+  sssfStartWatching();
   return status();
 }
-function dispose() {
+async function dispose() {
+  if (state.watchTimer) {
+    clearTimeout(state.watchTimer);
+    state.watchTimer = null;
+  }
   state.watcher?.close();
   state.watcher = null;
+  if (state.audit) {
+    await state.audit.flush();
+  }
 }
