@@ -21,7 +21,7 @@
 **Wide is an IDE that unifies web development and web security in a single ecosystem. It detects vulnerabilities in real time as you code, enabling secure development from line one, while providing built-in tools to execute full-scale, professional web penetration tests. Whether you are a web pentester, bug bounty hunter, or web developer, Wide is the only tool you need.**
 
 Wide is a high-performance cross-platform application designed for speed and minimal resource usage:
-- **Windows:** Native C++ (Win32 + WebView2) host — completely Electron-free.
+- **Windows:** Native Rust (Win32 + tao/wry + WebView2) host — completely Electron-free.
 - **Linux:** Lightweight Wayland/X11 host running on a dedicated Chromium runtime, offering full Chrome DevTools Protocol (CDP) support, NSS certificate trust, and multi-distro packaging.
 - **Core Engine:** High-speed React renderer paired with a multi-threaded Node.js backend sidecar.
 
@@ -30,9 +30,10 @@ Wide is a high-performance cross-platform application designed for speed and min
 - **Editor.** A fast multi-language code editor built on CodeMirror 6, with structure and symbol navigation, an integrated terminal, source control, and a debugger.
 - **Real-time security analysis.** An inspection engine flags likely vulnerabilities as you type — injection, XSS sinks, weak crypto, hardcoded secrets, and cross-file taint flow — each with a fix on hover.
 - **AI integration.** An autonomous coding and security agent powered by local Ollama/HuggingFace models or cloud providers (Gemini, Claude, DeepSeek). Features direct workspace editing, code inspection, interactive reasoning, and automated model management.
+- **Database management.** Built-in SQLite, PostgreSQL, MySQL, and Redis management with SSH tunneling, execution metrics, persistent query history, multi-format export (CSV, JSON, SQL INSERT), and Mermaid ERD visualization.
 - **Catcher.** A built-in web-security workbench: intercepting proxy, target site map, repeater, intruder, active scanner, OAST collaborator, and sequencer.
 - **Pitcher.** A complete API client: collections and environments, Bearer / Basic / API-key / OAuth 2.0 / Digest / AWS SigV4 auth, `pm.*` scripting and tests, a collection runner, and REST, GraphQL, WebSocket, SSE, and gRPC.
-- **Pentest browser.** A built-in browser wired into Catcher for proxying and inspection (WebView2 on Windows, embedded Chromium on Linux).
+- **Pentest browser.** A built-in browser wired into Catcher for proxying and inspection, with live CDP automation, action bounding box overlays, HAR 1.2 traffic export with header redaction, and stealth evasion mode.
 - **Extensions.** Language servers and security tools installed from a built-in marketplace.
 
 ## Installation
@@ -70,14 +71,16 @@ Wide on Linux features automatic updates, native Wayland support, and auto-trust
 Requirements:
 - Windows (x64)
 - Node.js 18 or newer
-- Visual Studio 2022 with the "Desktop development with C++" workload
-- CMake 3.21 or newer
+- Rust toolchain (cargo and rustc with x86_64-pc-windows-msvc)
+- Visual Studio 2022 or Build Tools with C++ build tools (for MSVC linker)
+- Inno Setup 6 (to compile the installer)
 
 ```bash
-npm run setup
+npm install
+npm run build
 npm run package
 ```
-To produce the installer, install [Inno Setup](https://jrsoftware.org/isinfo.php) and run:
+To produce the installer, compile with Inno Setup:
 ```bash
 iscc installer/wide.iss
 ```
