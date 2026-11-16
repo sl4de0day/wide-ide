@@ -23,6 +23,9 @@ jobs:
           node-version: '22'
           cache: 'npm'
 
+      - name: Install Linux Packaging Tools
+        run: sudo apt-get update && sudo apt-get install -y zstd
+
       - name: Install dependencies
         run: npm install
 
@@ -35,9 +38,9 @@ jobs:
           npm run package:deb
           mkdir -p release
           cp -f dist/*.tar.gz dist/*.tar.zst dist/*.deb release/
-          node scripts/generate-checksums.cjs
+          npm run checksums
 
-      - name: Upload Release Artifacts
+      - name: Upload Linux Release Artifacts
         uses: actions/upload-artifact@v7
         with:
           name: wide-ide-linux-release
@@ -47,14 +50,76 @@ jobs:
             release/*.deb
             release/SHA256SUMS
 
-      - name: Publish GitHub Release
+      - name: Publish Linux Assets to GitHub Release
         if: startsWith(github.ref, 'refs/tags/v')
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           TAG="${GITHUB_REF#refs/tags/}"
+          shopt -s nullglob
+          ASSETS=(release/*.tar.gz release/*.tar.zst release/*.deb release/SHA256SUMS)
           if gh release view "$TAG" >/dev/null 2>&1; then
-            gh release upload "$TAG" release/*.tar.gz release/*.tar.zst release/*.deb release/SHA256SUMS --clobber
+            gh release upload "$TAG" "${ASSETS[@]}" --clobber
           else
-            gh release create "$TAG" release/*.tar.gz release/*.tar.zst release/*.deb release/SHA256SUMS --title "Wide IDE $TAG" --generate-notes
+            gh release create "$TAG" "${ASSETS[@]}" --title "Wide IDE $TAG" --generate-notes
+          fi
+
+  release-windows:
+    name: Build & Package Windows Release
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install --ignore-scripts
+
+      - name: Build Renderer & Backend
+        run: npm run build:linux
+
+      - name: Build Rust Native Host & Package Windows Bundle
+        shell: pwsh
+        run: |
+          Push-Location native-host
+          cargo build --release
+          Pop-Location
+          powershell -ExecutionPolicy Bypass -File native-host/package.ps1
+          $ver = (Get-Content package.json | ConvertFrom-Json).version
+          New-Item -ItemType Directory -Force -Path release | Out-Null
+          $iscc = "C:\Program Files (x86)\Inno Setup 6\ISCC.exe"
+          if (Test-Path $iscc) {
+            & $iscc "/DAppVersion=$ver" "installer\wide.iss"
+          } else {
+            Compress-Archive -Path "dist\wide\*" -DestinationPath "release\Wide-$ver-win-x64.zip" -Force
+          }
+
+      - name: Upload Windows Release Artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: wide-ide-windows-release
+          path: |
+            release/*.exe
+            release/*.zip
+
+      - name: Publish Windows Assets to GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          TAG="${GITHUB_REF#refs/tags/}"
+          shopt -s nullglob
+          ASSETS=(release/*.exe release/*.zip)
+          if [ ${#ASSETS[@]} -gt 0 ]; then
+            if gh release view "$TAG" >/dev/null 2>&1; then
+              gh release upload "$TAG" "${ASSETS[@]}" --clobber
+            else
+              gh release create "$TAG" "${ASSETS[@]}" --title "Wide IDE $TAG" --generate-notes
+            fi
           fi
