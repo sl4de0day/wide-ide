@@ -8,7 +8,7 @@ const ROOT = path.resolve(__dirname, '..');
 const DIST = path.join(ROOT, 'dist');
 const OUT_DIR = path.join(DIST, 'wide-linux-x64');
 const ELECTRON_DIST = path.join(ROOT, 'node_modules', 'electron', 'dist');
-const LINUX_ZIP = process.env.LINUX_ZIP || 'C:\\Users\\yusuf\\Downloads\\electron-v41.7.1-linux-x64.zip';
+const LINUX_ZIP = process.env.LINUX_ZIP || path.join(DIST, 'electron-linux-x64.zip');
 
 console.log('== [1/5] Checks and Preparation ==');
 if (!fs.existsSync(LINUX_ZIP) && !fs.existsSync(ELECTRON_DIST)) {
