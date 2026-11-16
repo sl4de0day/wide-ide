@@ -1,0 +1,60 @@
+name: Wide IDE Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release-linux:
+    name: Build & Package Linux Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build Renderer & Backend
+        run: npm run build:linux
+
+      - name: Package Linux Archives & DEB
+        run: |
+          npm run package:linux
+          npm run package:deb
+          mkdir -p release
+          cp -f dist/*.tar.gz dist/*.tar.zst dist/*.deb release/
+          node scripts/generate-checksums.cjs
+
+      - name: Upload Release Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: wide-ide-linux-release
+          path: |
+            release/*.tar.gz
+            release/*.tar.zst
+            release/*.deb
+            release/SHA256SUMS
+
+      - name: Publish GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="${GITHUB_REF#refs/tags/}"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" release/*.tar.gz release/*.tar.zst release/*.deb release/SHA256SUMS --clobber
+          else
+            gh release create "$TAG" release/*.tar.gz release/*.tar.zst release/*.deb release/SHA256SUMS --title "Wide IDE $TAG" --generate-notes
+          fi

@@ -8,12 +8,8 @@ const ROOT = path.resolve(__dirname, '..');
 const RELEASE = path.join(ROOT, 'release');
 const DIST = path.join(ROOT, 'dist');
 
-const oldExe = path.join(RELEASE, 'Wide-Setup-1.3291026.exe');
-if (fs.existsSync(oldExe)) {
-  fs.unlinkSync(oldExe);
-}
-
-const files = fs.readdirSync(RELEASE).filter((f) => f.includes('2.0151126'));
+const pkg = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8'));
+const files = fs.readdirSync(RELEASE).filter((f) => f.includes(pkg.version));
 files.sort();
 
 const sums = [];

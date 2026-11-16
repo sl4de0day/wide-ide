@@ -21,6 +21,7 @@
     "package:deb": "node scripts/package-deb.cjs",
     "package:rpm": "node scripts/package-rpm.cjs",
     "package:appimage": "bash installer/build-appimage.sh",
+    "checksums": "node scripts/generate-checksums.cjs",
     "package:all": "npm run package:linux && npm run package:deb && npm run package:rpm && npm run package:arch && npm run package:appimage",
     "dev:renderer": "npm --prefix apps/renderer run dev",
     "typecheck": "npm --prefix apps/renderer run typecheck",
