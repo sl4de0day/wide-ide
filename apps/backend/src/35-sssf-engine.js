@@ -581,9 +581,20 @@ function resolvePattern(reference, sets, diagnostics) {
     return { kind: "glob", patterns: found.compiled, label: reference.name };
   }
   if (reference.type === "regex") {
+    const safeFlags = String(reference.flags || "").replace(/[gy]/g, "");
+    if (__wideTs?.hasNestedQuantifiers?.(reference.pattern)) {
+      diagnostics.error(`Unsafe ReDoS pattern rejected: /${reference.pattern}/`, reference.position);
+      return { kind: "glob", patterns: [], label: reference.pattern };
+    }
+    if (__wideTs?.compileSafePattern && __wideTs?.matchSafePattern) {
+      try {
+        const prog = __wideTs.compileSafePattern(reference.pattern, safeFlags);
+        return { kind: "safe_regex", prog, label: `/${reference.pattern}/` };
+      } catch {}
+    }
     return {
       kind: "regex",
-      regexp: new RegExp(reference.pattern, String(reference.flags || "").replace(/[gy]/g, "")),
+      regexp: new RegExp(reference.pattern, safeFlags),
       label: `/${reference.pattern}/`
     };
   }
@@ -599,6 +610,9 @@ function testRegexp(re, value) {
 }
 function pathHits(resolved, context) {
   if (context.relativePath === null && context.basename === null) return false;
+  if (resolved.kind === "safe_regex") {
+    return __wideTs.matchSafePattern(resolved.prog, context.relativePath ?? context.rawPath ?? "");
+  }
   if (resolved.kind === "regex") {
     return testRegexp(resolved.regexp, context.relativePath ?? context.rawPath ?? "");
   }

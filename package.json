@@ -1,7 +1,7 @@
 {
   "name": "wide",
   "productName": "Wide IDE",
-  "version": "2.0151126",
+  "version": "2.1191126",
   "description": "Wide IDE — a security-first IDE for the web stack. Modern cross-platform native host (Rust + tao + wry), React renderer, Node backend sidecar.",
   "private": true,
   "workspaces": [
@@ -24,7 +24,7 @@
     "checksums": "node scripts/generate-checksums.cjs",
     "package:all": "npm run package:linux && npm run package:deb && npm run package:rpm && npm run package:arch && npm run package:appimage",
     "dev:renderer": "npm --prefix apps/renderer run dev",
-    "typecheck": "npm --prefix apps/renderer run typecheck",
+    "typecheck": "npm --prefix apps/renderer run typecheck && node node_modules/typescript/bin/tsc -p apps/backend/tsconfig.json --noEmit",
     "test": "npm run test:unit && npm run test:smoke",
     "test:unit": "npm --prefix apps/renderer run test",
     "test:smoke": "node sidecar/smoke-backend.cjs",

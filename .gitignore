@@ -12,3 +12,4 @@ installer/*.pkg.tar.*
 scratch/
 
 native-host/target/
+native-core/target/

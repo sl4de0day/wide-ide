@@ -64,8 +64,8 @@ async function readUpdateState() {
 async function writeUpdateState(state) {
   try {
     await writeFileAtomic(updateStateFile(), JSON.stringify(state, null, 2), "utf8");
-  } catch {
-    void 0;
+  } catch (error) {
+    reportRecoverableError("updater", "persist update state failed", error);
   }
 }
 
