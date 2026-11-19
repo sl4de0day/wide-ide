@@ -12,6 +12,12 @@ const LINUX_ZIP = process.env.LINUX_ZIP || path.join(DIST, 'electron-linux-x64.z
 
 console.log('== [1/5] Checks and Preparation ==');
 if (!fs.existsSync(LINUX_ZIP) && !fs.existsSync(ELECTRON_DIST)) {
+  const installer = path.join(ROOT, 'node_modules', 'electron', 'install.js');
+  if (fs.existsSync(installer)) {
+    cp.execFileSync(process.execPath, [installer], { cwd: ROOT, stdio: 'inherit' });
+  }
+}
+if (!fs.existsSync(LINUX_ZIP) && !fs.existsSync(ELECTRON_DIST)) {
   console.error('Electron distribution not found. Please run "npm install".');
   process.exit(1);
 }
