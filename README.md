@@ -1,7 +1,7 @@
 <p align="center">
   <img src="assets/wide-logo.png" alt="Wide IDE" width="128">
   <h1 align="center">Wide IDE</h1>
-  <p align="center">Security-first IDE with built-in pentest tools and AI agents for the Wide ecosystem</p>
+  <p align="center">The flagship of Wide: a security-first IDE for web development, with built-in pentest tools and AI agents</p>
 </p>
 
 <p align="center">
@@ -18,7 +18,9 @@
 
 ---
 
-**Wide is an IDE that unifies web development and web security in a single ecosystem. It detects vulnerabilities in real time as you code, enabling secure development from line one, while providing built-in tools to execute full-scale, professional web penetration tests. Whether you are a web pentester, bug bounty hunter, or web developer, Wide is the only tool you need.**
+> **Wide blends web development and web security into one AI-powered workflow.** Write the code, catch the vulnerability, and test the fix in the same place.
+
+**Wide IDE is the flagship of the Wide ecosystem: an IDE that unifies web development and web security, with AI agents working alongside you. It detects vulnerabilities in real time as you code, enabling secure development from line one, while providing built-in tools to execute full-scale, professional web penetration tests. Whether you are a web pentester, bug bounty hunter, or web developer, Wide is the only tool you need.**
 
 Wide is a high-performance cross-platform application designed for speed and minimal resource usage:
 - **Windows:** Native Rust (Win32 + tao/wry + WebView2) host — completely Electron-free.
@@ -105,6 +107,19 @@ npm run package:all
 ## Note
 
 Wide includes a man-in-the-middle proxy and generates a local certificate authority for HTTPS interception. The binaries are not code-signed, so Windows SmartScreen or antivirus software may warn on first run.
+
+## The Wide Ecosystem
+
+Wide blends web development and web security into one AI-powered workflow. Every product runs on the same security rules, so a vulnerability caught in one place is caught everywhere.
+
+| Product | Who it is for |
+| :--- | :--- |
+| [Wide IDE](https://github.com/sl4de0day/wide-ide) | **The flagship.** A full IDE for web developers and pentesters: write code, see vulnerabilities as you type, and test them with built-in pentest tools and AI agents. |
+| [Wide App](https://github.com/sl4de0day/wide-app) | A prompt-only AI workspace for people who do not need a full IDE. Describe the task; Wide's agents build, fix, and audit the project. |
+| [Wide CLI](https://github.com/sl4de0day/wide-cli) | The same AI agents and security scanner in your terminal. |
+| [Wide Action](https://github.com/sl4de0day/wide-action) | The same rules as a pull request security gate in GitHub CI. |
+| [Wide SDK](https://github.com/sl4de0day/wide-sdk) | A Python library for building your own agents on Wide's security tooling. |
+| [Wide Rules](https://github.com/sl4de0day/wide-rules) | The shared rule and advisory database behind every Wide product. |
 
 ## License
 
