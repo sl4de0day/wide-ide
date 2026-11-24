@@ -36,6 +36,17 @@ import { selectedText } from "./editor/activeView";
 import { copyConversation, exportConversation } from "./lib/chatExport";
 import { BottomDock, SidePanel } from "./components/SidePanel";
 const SettingsView = lazy(() => import("./components/SettingsView").then((m) => ({ default: m.SettingsView })));
+const DatabaseConnectionModal = lazy(() => import("./panels/DatabasePanel").then((m) => ({ default: m.DatabaseConnectionModal })));
+
+function DatabaseModalHost() {
+  const open = useDatabase((s) => s.modalOpen);
+  if (!open) return null;
+  return (
+    <Suspense fallback={null}>
+      <DatabaseConnectionModal />
+    </Suspense>
+  );
+}
 import { StatusBar } from "./components/StatusBar";
 import { TitleBar } from "./components/TitleBar";
 import { bridge } from "./lib/bridge";
@@ -174,7 +185,7 @@ function addSecurityFindingsForActiveFile(): number {
 function BootGate() {
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-canvas">
-      <img src={logo} alt="Wide IDE" width={432} height={432} className="size-[432px] select-none animate-pulse" draggable={false} />
+      <img src={logo} alt="Wide IDE" width={432} height={432} className="size-[432px] select-none wide-enter-fade" draggable={false} />
     </div>
   );
 }
@@ -503,7 +514,7 @@ export default function App() {
           const expectedPath = `${AI_CHAT_PATH}${chat.id}`;
           if (activePath !== expectedPath) {
             useEditor.getState().openAiChat(chat.id, chat.title || t("New conversation"));
-            setActiveSide("ai");
+            openPanel("ai");
           }
         } else if (chat.root) {
           void useWorkspace.getState().openTarget(chat.root);
@@ -955,6 +966,7 @@ export default function App() {
       <PromptHost />
       <Toasts />
       <CrashReportDialog />
+      <DatabaseModalHost />
     </div>
   );
 }

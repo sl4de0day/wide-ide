@@ -56,7 +56,7 @@ EXTRA_FLAGS+=(--no-appstream)
 if [ -n "$APPIMAGETOOL" ]; then
   echo "[appimage] Using appimagetool: $APPIMAGETOOL"
   ARCH=x86_64 "$APPIMAGETOOL" "${EXTRA_FLAGS[@]}" "$APPDIR" "$OUTPUT_IMAGE"
-  echo "✓ [appimage] Created: $OUTPUT_IMAGE"
+  echo "[ok] [appimage] Created: $OUTPUT_IMAGE"
 else
   echo "[appimage] appimagetool is not in PATH."
   echo "[appimage] AppDir is ready at: $APPDIR"

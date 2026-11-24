@@ -1,7 +1,7 @@
 {
   "name": "wide",
   "productName": "Wide IDE",
-  "version": "2.1191126",
+  "version": "2.2241126",
   "description": "The flagship of Wide: a security-first IDE for web development, with built-in pentest tools and AI agents",
   "private": true,
   "workspaces": [

@@ -173,22 +173,22 @@ export function AiBrowserView() {
   const engineLabel = browserLabel || (detected?.found ? detected.label : "Browser");
 
   return (
-    <div className={`flex flex-col h-full w-full bg-mono-950 text-mono-200 select-none ${fullscreen ? "fixed inset-0 z-50" : ""}`}>
-      <div className="flex flex-wrap items-center gap-2 px-3 py-2 border-b border-mono-800 bg-mono-900 text-xs">
+    <div className={`flex flex-col h-full w-full bg-canvas text-fg select-none ${fullscreen ? "fixed inset-0 z-50" : ""}`}>
+      <div className="flex flex-wrap items-center gap-2 px-3 py-2 border-b border-line bg-panel text-xs">
         <div className="flex items-center gap-2 shrink-0">
-          <Globe className="w-4 h-4 text-sky-400" />
-          <span className="font-semibold text-mono-100">AI Browser</span>
-          <span className="px-1.5 py-0.5 rounded text-[10px] font-mono bg-mono-800 text-mono-300 border border-mono-700">
+          <Globe className="w-4 h-4 text-accent" />
+          <span className="font-semibold text-fg-bright">AI Browser</span>
+          <span className="px-1.5 py-0.5 rounded text-[10px] font-mono bg-raised text-fg-dim border border-line">
             {engineLabel}
           </span>
           <span
             className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-medium border ${
               takeover
-                ? "bg-sky-500/15 text-sky-300 border-sky-500/40"
-                : "bg-emerald-500/10 text-emerald-400 border-emerald-500/30"
+                ? "bg-accent/15 text-accent border-accent/40"
+                : "bg-status-ok/10 text-status-ok border-status-ok/30"
             }`}
           >
-            <span className={`w-1.5 h-1.5 rounded-full ${takeover ? "bg-sky-400" : "bg-emerald-400 animate-pulse"}`} />
+            <span className={`w-1.5 h-1.5 rounded-full ${takeover ? "bg-accent" : "bg-status-ok"}`} />
             {takeover ? "TAKEOVER" : status.toUpperCase()}
           </span>
         </div>
@@ -199,7 +199,7 @@ export function AiBrowserView() {
             disabled={!canGoBack}
             onClick={() => runNav("back")}
             title="Back"
-            className="p-1 rounded border border-mono-800 bg-mono-950 text-mono-300 hover:bg-mono-800 disabled:opacity-35 disabled:pointer-events-none"
+            className="p-1 rounded border border-line bg-canvas text-fg-dim hover:bg-hover hover:text-fg disabled:opacity-35 disabled:pointer-events-none"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
           </button>
@@ -208,7 +208,7 @@ export function AiBrowserView() {
             disabled={!canGoForward}
             onClick={() => runNav("forward")}
             title="Forward"
-            className="p-1 rounded border border-mono-800 bg-mono-950 text-mono-300 hover:bg-mono-800 disabled:opacity-35 disabled:pointer-events-none"
+            className="p-1 rounded border border-line bg-canvas text-fg-dim hover:bg-hover hover:text-fg disabled:opacity-35 disabled:pointer-events-none"
           >
             <ArrowRight className="w-3.5 h-3.5" />
           </button>
@@ -217,14 +217,14 @@ export function AiBrowserView() {
             disabled={!active}
             onClick={() => runNav("reload")}
             title="Reload"
-            className="p-1 rounded border border-mono-800 bg-mono-950 text-mono-300 hover:bg-mono-800 disabled:opacity-35 disabled:pointer-events-none"
+            className="p-1 rounded border border-line bg-canvas text-fg-dim hover:bg-hover hover:text-fg disabled:opacity-35 disabled:pointer-events-none"
           >
-            <RotateCw className={`w-3.5 h-3.5 ${loading ? "animate-spin text-sky-400" : ""}`} />
+            <RotateCw className={`w-3.5 h-3.5 ${loading ? "animate-spin text-accent" : ""}`} />
           </button>
         </div>
 
-        <form onSubmit={navigateUrl} className="flex-1 min-w-[180px] flex items-center gap-1.5 px-2.5 py-1 bg-mono-950 border border-mono-800 rounded focus-within:border-sky-500/60">
-          <Lock className="w-3 h-3 text-emerald-400 shrink-0" />
+        <form onSubmit={navigateUrl} className="flex-1 min-w-[180px] flex items-center gap-1.5 px-2.5 py-1 bg-canvas border border-line rounded focus-within:border-accent">
+          <Lock className="w-3 h-3 text-status-ok shrink-0" />
           <input
             type="text"
             value={draftUrl}
@@ -232,7 +232,7 @@ export function AiBrowserView() {
             onFocus={() => setUrlFocused(true)}
             onBlur={() => setUrlFocused(false)}
             placeholder="https://..."
-            className="w-full bg-transparent text-mono-200 font-mono text-[11px] outline-none select-text"
+            className="w-full bg-transparent text-fg font-mono text-[11px] outline-none select-text"
           />
         </form>
 
@@ -243,8 +243,8 @@ export function AiBrowserView() {
             title="Toggle Catcher proxy routing"
             className={`px-2 py-1 rounded text-[10px] font-mono border transition ${
               proxyPort > 0
-                ? "bg-emerald-500/10 text-emerald-300 border-emerald-500/30 hover:bg-emerald-500/20"
-                : "bg-mono-950 text-mono-400 border-mono-800 hover:text-mono-200"
+                ? "bg-status-ok/10 text-status-ok border-status-ok/30 hover:bg-status-ok/20"
+                : "bg-canvas text-fg-dim border-line hover:text-fg"
             }`}
           >
             {proxyPort > 0 ? `Catcher :${proxyPort}` : "Direct"}
@@ -256,8 +256,8 @@ export function AiBrowserView() {
             title="Toggle stealth webdriver masking mode"
             className={`px-2 py-1 rounded text-[10px] font-mono border inline-flex items-center gap-1 transition ${
               stealth
-                ? "bg-amber-500/15 text-amber-300 border-amber-500/40 hover:bg-amber-500/25"
-                : "bg-mono-950 text-mono-400 border-mono-800 hover:text-mono-200"
+                ? "bg-status-warn/12 text-status-warn border-status-warn/35 hover:bg-status-warn/20"
+                : "bg-canvas text-fg-dim border-line hover:text-fg"
             }`}
           >
             <ShieldCheck className="w-3 h-3" />
@@ -269,7 +269,7 @@ export function AiBrowserView() {
             onClick={exportHar}
             disabled={!active}
             title="Export network trace as HAR 1.2"
-            className="px-2 py-1 rounded text-[10px] font-mono border border-mono-800 bg-mono-950 text-mono-300 hover:bg-mono-800 inline-flex items-center gap-1 transition disabled:opacity-40"
+            className="px-2 py-1 rounded text-[10px] font-mono border border-line bg-canvas text-fg-dim hover:bg-hover hover:text-fg inline-flex items-center gap-1 transition disabled:opacity-40"
           >
             <Download className="w-3 h-3" />
             {harNotice || "Export HAR"}
@@ -281,8 +281,8 @@ export function AiBrowserView() {
             disabled={!frame}
             className={`px-2 py-1 rounded text-[11px] border flex items-center gap-1 transition disabled:opacity-40 ${
               takeover
-                ? "bg-sky-500/20 text-sky-300 border-sky-500/50 font-medium"
-                : "bg-mono-950 text-mono-300 border-mono-800 hover:bg-mono-800"
+                ? "bg-accent/15 text-accent border-accent/45 font-medium"
+                : "bg-canvas text-fg-dim border-line hover:bg-hover hover:text-fg"
             }`}
           >
             <Hand className="w-3 h-3" />
@@ -292,8 +292,8 @@ export function AiBrowserView() {
           <button
             type="button"
             onClick={() => setShowLog(!showLog)}
-            className={`px-2 py-1 rounded text-[11px] border border-mono-800 flex items-center gap-1 transition ${
-              showLog ? "bg-mono-800 text-mono-100" : "bg-mono-950 text-mono-400 hover:text-mono-200"
+            className={`px-2 py-1 rounded text-[11px] border border-line flex items-center gap-1 transition ${
+              showLog ? "bg-selected text-fg-bright" : "bg-canvas text-fg-dim hover:text-fg"
             }`}
           >
             <Terminal className="w-3 h-3" />
@@ -305,7 +305,7 @@ export function AiBrowserView() {
               type="button"
               onClick={closeSession}
               title="Close browser session"
-              className="p-1 rounded text-mono-400 hover:text-red-400 border border-mono-800 hover:bg-mono-800 transition"
+              className="p-1 rounded text-fg-dim hover:text-status-error border border-line hover:bg-hover transition"
             >
               <Power className="w-3.5 h-3.5" />
             </button>
@@ -314,7 +314,7 @@ export function AiBrowserView() {
           <button
             type="button"
             onClick={() => setFullscreen(!fullscreen)}
-            className="p-1 rounded text-mono-400 hover:text-mono-200 border border-mono-800 hover:bg-mono-800 transition"
+            className="p-1 rounded text-fg-dim hover:text-fg border border-line hover:bg-hover transition"
           >
             {fullscreen ? <Minimize2 className="w-3.5 h-3.5" /> : <Maximize2 className="w-3.5 h-3.5" />}
           </button>
@@ -322,25 +322,25 @@ export function AiBrowserView() {
       </div>
 
       <div className="flex-1 flex overflow-hidden">
-        <div className="flex-1 flex flex-col bg-mono-950 relative overflow-hidden">
-          <div className="flex items-center justify-between px-3 py-1 bg-mono-900/60 border-b border-mono-800/60 text-[11px] text-mono-400">
+        <div className="flex-1 flex flex-col bg-canvas relative overflow-hidden">
+          <div className="flex items-center justify-between px-3 py-1 bg-panel/70 border-b border-line text-[11px] text-fg-dim">
             <div className="flex items-center gap-2 truncate">
-              <span className="font-semibold text-mono-300 truncate max-w-[260px]">{title}</span>
-              <span className="text-mono-600">|</span>
-              <span className="text-mono-400 truncate">{lastAction}</span>
+              <span className="font-semibold text-fg truncate max-w-[260px]">{title}</span>
+              <span className="text-fg-faint">|</span>
+              <span className="text-fg-dim truncate">{lastAction}</span>
             </div>
-            <div className="flex items-center gap-1.5 text-mono-400 shrink-0">
-              <ShieldCheck className="w-3.5 h-3.5 text-sky-400" />
+            <div className="flex items-center gap-1.5 text-fg-dim shrink-0">
+              <ShieldCheck className="w-3.5 h-3.5 text-accent" />
               <span>{takeover ? "Click & type inside viewport to control browser" : "Autonomous Playwright stream"}</span>
             </div>
           </div>
 
-          <div className="flex-1 flex items-center justify-center p-3 bg-mono-950 overflow-auto">
+          <div className="flex-1 flex items-center justify-center p-3 bg-canvas overflow-auto">
             {installing ? (
-              <div className="flex flex-col items-center justify-center p-8 text-center border border-mono-800 rounded-lg max-w-md bg-mono-900/40">
-                <Download className="w-10 h-10 text-sky-400 mb-3 animate-bounce" />
-                <h3 className="font-semibold text-mono-100 text-sm mb-1">Downloading Chromium Runtime</h3>
-                <p className="text-xs text-mono-400 font-mono">{installStatus || "Preparing Playwright Chromium..."}</p>
+              <div className="flex flex-col items-center justify-center p-8 text-center border border-line rounded-lg max-w-md bg-panel">
+                <Download className="w-10 h-10 text-accent mb-3" />
+                <h3 className="font-semibold text-fg-bright text-sm mb-1">Downloading Chromium Runtime</h3>
+                <p className="text-xs text-fg-dim font-mono">{installStatus || "Preparing Playwright Chromium..."}</p>
               </div>
             ) : frame ? (
               <div
@@ -354,10 +354,10 @@ export function AiBrowserView() {
                 onContextMenu={(e) => {
                   if (takeover) e.preventDefault();
                 }}
-                className={`relative w-full max-w-[1280px] aspect-[16/10] max-h-full rounded-lg shadow-2xl overflow-hidden bg-mono-900 outline-none ${
+                className={`relative w-full max-w-[1280px] aspect-[16/10] max-h-full rounded-lg shadow-2xl overflow-hidden bg-panel outline-none ${
                   takeover
-                    ? "border-2 border-sky-500 cursor-crosshair"
-                    : "border border-mono-800 cursor-default"
+                    ? "border-2 border-accent cursor-crosshair"
+                    : "border border-line cursor-default"
                 }`}
               >
                 <img
@@ -369,7 +369,7 @@ export function AiBrowserView() {
                 />
                 {lastHighlight && (
                   <div
-                    className="absolute pointer-events-none border-2 border-amber-400 bg-amber-400/15 rounded-sm shadow-[0_0_0_1px_rgba(0,0,0,0.6)] transition-all duration-150"
+                    className="absolute pointer-events-none border-2 border-status-warn bg-status-warn/15 rounded-sm shadow-[0_0_0_1px_rgba(0,0,0,0.6)] transition-all duration-150"
                     style={{
                       left: `${(lastHighlight.x / 1280) * 100}%`,
                       top: `${(lastHighlight.y / 800) * 100}%`,
@@ -377,31 +377,31 @@ export function AiBrowserView() {
                       height: `${(lastHighlight.height / 800) * 100}%`,
                     }}
                   >
-                    <span className="absolute -top-5 left-0 px-1.5 py-0.5 rounded bg-amber-500 text-mono-950 font-mono text-[10px] font-semibold whitespace-nowrap shadow">
+                    <span className="absolute -top-5 left-0 px-1.5 py-0.5 rounded bg-status-warn text-canvas font-mono text-[10px] font-semibold whitespace-nowrap shadow">
                       {lastHighlight.action}
                       {lastHighlight.target ? `: ${lastHighlight.target}` : ""}
                     </span>
                   </div>
                 )}
-                <div className="absolute top-2 right-2 px-2 py-0.5 rounded bg-mono-950/85 border border-mono-700/60 text-[10px] text-mono-300 font-mono pointer-events-none">
+                <div className="absolute top-2 right-2 px-2 py-0.5 rounded bg-panel/90 border border-line-strong text-[10px] text-fg-muted font-mono pointer-events-none">
                   {takeover ? "INTERACTIVE" : "LIVE STREAM"}
                 </div>
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center p-8 text-center border border-dashed border-mono-800 rounded-lg max-w-md">
-                <Globe className="w-12 h-12 text-mono-600 mb-3" />
-                <h3 className="font-semibold text-mono-200 text-sm mb-1">Autonomous Browser Ready</h3>
-                <p className="text-xs text-mono-400 mb-4">
+              <div className="flex flex-col items-center justify-center p-8 text-center border border-dashed border-line rounded-lg max-w-md">
+                <Globe className="w-12 h-12 text-fg-faint mb-3" />
+                <h3 className="font-semibold text-fg text-sm mb-1">Autonomous Browser Ready</h3>
+                <p className="text-xs text-fg-dim mb-4">
                   Real headless/headed browser viewport streams here with Catcher proxy capture and interactive takeover.
                 </p>
-                <div className="text-[11px] text-mono-400 mb-4 font-mono">
+                <div className="text-[11px] text-fg-dim mb-4 font-mono">
                   {detected?.found ? `Detected: ${detected.label}` : "No local Chrome/Edge found"}
                 </div>
                 <div className="flex items-center gap-2">
                   <button
                     type="button"
                     onClick={launchDefault}
-                    className="px-3 py-1.5 rounded bg-sky-600 hover:bg-sky-500 text-white text-xs font-medium transition"
+                    className="px-3 py-1.5 rounded bg-accent hover:opacity-90 text-fg-bright text-xs font-medium transition"
                   >
                     Launch Browser
                   </button>
@@ -409,7 +409,7 @@ export function AiBrowserView() {
                     <button
                       type="button"
                       onClick={installRuntime}
-                      className="px-3 py-1.5 rounded border border-mono-700 bg-mono-900 hover:bg-mono-800 text-mono-200 text-xs font-medium inline-flex items-center gap-1.5 transition"
+                      className="px-3 py-1.5 rounded border border-line-strong bg-panel hover:bg-hover text-fg text-xs font-medium inline-flex items-center gap-1.5 transition"
                     >
                       <Download className="w-3.5 h-3.5" />
                       Download Chromium
@@ -422,29 +422,29 @@ export function AiBrowserView() {
         </div>
 
         {showLog && (
-          <div className="w-80 border-l border-mono-800 bg-mono-900/90 flex flex-col shrink-0">
-            <div className="px-3 py-2 border-b border-mono-800 flex items-center justify-between text-xs font-semibold text-mono-300">
+          <div className="w-80 border-l border-line bg-panel flex flex-col shrink-0">
+            <div className="px-3 py-2 border-b border-line flex items-center justify-between text-xs font-semibold text-fg-muted">
               <span className="flex items-center gap-1.5">
-                <Activity className="w-3.5 h-3.5 text-sky-400" />
+                <Activity className="w-3.5 h-3.5 text-accent" />
                 Session Action Feed
               </span>
-              <span className="text-[10px] text-mono-500 font-normal">Realtime</span>
+              <span className="text-[10px] text-fg-faint font-normal">Realtime</span>
             </div>
             <div className="flex-1 p-2 overflow-y-auto font-mono text-[11px] space-y-1.5">
               {history.length === 0 ? (
-                <div className="text-mono-500 text-center py-6 text-[11px]">No browser actions recorded yet.</div>
+                <div className="text-fg-faint text-center py-6 text-[11px]">No browser actions recorded yet.</div>
               ) : (
                 history.map((item) => (
-                  <div key={item.id} className="p-2 rounded bg-mono-950 border border-mono-800/80 flex flex-col gap-1">
-                    <div className="flex items-center justify-between text-[10px] text-mono-500">
-                      <span className="flex items-center gap-1 text-sky-400">
+                  <div key={item.id} className="p-2 rounded bg-canvas border border-line flex flex-col gap-1">
+                    <div className="flex items-center justify-between text-[10px] text-fg-faint">
+                      <span className="flex items-center gap-1 text-accent">
                         <Clock className="w-2.5 h-2.5" />
                         {new Date(item.timestamp).toLocaleTimeString()}
                       </span>
-                      {item.target && <span className="text-mono-400 truncate max-w-[120px]">{item.target}</span>}
+                      {item.target && <span className="text-fg-dim truncate max-w-[120px]">{item.target}</span>}
                     </div>
-                    <div className="text-mono-200 font-semibold truncate">{item.action}</div>
-                    {item.url && <div className="text-[10px] text-mono-400 truncate">{item.url}</div>}
+                    <div className="text-fg font-semibold truncate">{item.action}</div>
+                    {item.url && <div className="text-[10px] text-fg-dim truncate">{item.url}</div>}
                   </div>
                 ))
               )}

@@ -13,7 +13,7 @@ if (!fs.existsSync(RELEASE)) {
   fs.mkdirSync(RELEASE, { recursive: true });
 }
 
-const PKG_VERSION = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8')).version || '2.1191126';
+const PKG_VERSION = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8')).version || '2.2241126';
 
 console.log('Packing tar.gz...');
 const tarGzName = `wide-${PKG_VERSION}-linux-x64.tar.gz`;

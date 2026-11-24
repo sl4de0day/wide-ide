@@ -1,6 +1,6 @@
 [package]
 name = "wide"
-version = "2.1.191126"
+version = "2.2.241126"
 edition = "2021"
 
 [dependencies]
